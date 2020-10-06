@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<VTKFile type="UnstructuredGrid" version="1.0" byte_order="LittleEndian" compressor="vtkZLibDataCompressor">
+  <UnstructuredGrid>
+    <Piece NumberOfPoints="4" NumberOfCells="1">
+      <Points>
+        <DataArray type="Float32" Name="Points" NumberOfComponents="3" format="ascii">
+          0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+          7.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+          7.0000000000e+00 5.0000000000e+00 0.0000000000e+00 
+          0.0000000000e+00 5.0000000000e+00 0.0000000000e+00 
+        </DataArray>
+      </Points>
+      <Cells>
+        <DataArray type="Int32" Name="connectivity" format="ascii">
+          0
+          1
+          2
+          3
+        </DataArray>
+        <DataArray type="Int32" Name="offsets" format="ascii">
+          4
+        </DataArray>
+        <DataArray type="Int32" Name="types" format="ascii">
+          2
+        </DataArray>
+      </Cells>
+      <PointData>
+        <DataArray type="Int32" Name="NodeTag" format="ascii">
+          1
+          2
+          3
+          4
+        </DataArray>
+        <DataArray type="Float32" Name="AllDisplacement" NumberOfComponents="6" format="ascii">
+          0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+          0.0000000000e+00 0.0000000000e+00 -1.7791563632e-03 1.0082069541e-05 5.0469307470e-04 0.0000000000e+00 
+          0.0000000000e+00 0.0000000000e+00 -1.4909398959e-03 1.0485784408e-04 4.2501214217e-04 0.0000000000e+00 
+          0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+        </DataArray>
+        <DataArray type="Float32" Name="Displacement" NumberOfComponents="3" format="ascii">
+          0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+          0.0000000000e+00 0.0000000000e+00 -1.7791563632e-03 
+          0.0000000000e+00 0.0000000000e+00 -1.4909398959e-03 
+          0.0000000000e+00 0.0000000000e+00 0.0000000000e+00 
+        </DataArray>
+      </PointData>
+      <CellData>
+        <DataArray type="Int32" Name="ElementTag" format="ascii">
+          0
+        </DataArray>
+      </CellData>
+    </Piece>
+  </UnstructuredGrid>
+</VTKFile>
