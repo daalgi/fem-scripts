@@ -17,19 +17,14 @@ div_circ = 12
 divs = [div_in, div_load, div_out, div_slab]
 
 with pygmsh.geo.Geometry() as geom:   
-    geom.characteristic_length_max = 0.5
+    #geom.characteristic_length_max = 0.5
 
     pointc = geom.add_point((0, 0, 0), mesh_size=1)
     pointsh = [pointc] + [geom.add_point((r, 0, 0), mesh_size=1) for r in radius]
     pointsv = [pointc] + [geom.add_point((0, r, 0), mesh_size=1) for r in radius]
 
-    arcs = [geom.add_circle_arc(p, pointc, q) for p, q in zip(pointsh[1:], pointsv[1:])]
-    lh = [geom.add_line(p, q) for p, q in zip(pointsh[:-1], pointsh[1:])]
-    lv = [geom.add_line(p, q) for p, q in zip(pointsv[:-1], pointsv[1:])]    
 
-    cloops = [geom.add_curve_loop([lh[0], arcs[0], -lv[0]])]
-    cloops += [geom.add_curve_loop([h, cext, -v, -cint]) for h, cext, v, cint in zip(lh[1:], arcs[1:], lv[1:], arcs[:-1])]
-    surfaces = [geom.add_surface(cloop) for cloop in cloops]
+    # TODO
 
     for a in arcs:
         geom.set_transfinite_curve(a, div_circ, "Progression", 1)

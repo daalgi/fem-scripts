@@ -15,7 +15,6 @@ with pygmsh.geo.Geometry() as geom:
     #cp = geom.copy(c)
     #geom.symmetrize(c, [0, 0, 0, 1])
     mesh = geom.generate_mesh()
-
     #gmsh.model.geo.synchronize()
     """
     
@@ -45,7 +44,3 @@ with pygmsh.geo.Geometry() as geom:
 
     # plot the data with an automatically created Plotter
     grid.plot(show_axes=True, show_edges=True)
-
-
-
-

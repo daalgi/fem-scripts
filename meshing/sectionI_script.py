@@ -15,7 +15,7 @@ factory = occ
 
 #_, section = section_rectangular(height=0.8, width=0.3, factory=occ)
 section = section_I(height=0.8, width=0.8, flange_th=0.1, web_th=0.05, factory=factory)
-factory.synchronize()
+
 
 """
 # Embed additional lines
