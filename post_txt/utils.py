@@ -76,6 +76,6 @@ if __name__ == '__main__':
     print(y[tuple(slice1)])
     print(y[tuple(slice2)])"""
 
-    stress = [-7.62257, +5.76795]
-    y = [-1.7/2, 1.7/2]
+    stress = [-1, +1]
+    y = [-1, 1]
     print(moment_stress_integration(stress, y))

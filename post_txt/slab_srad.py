@@ -67,7 +67,6 @@ if single_model:
             -moment_stress_integration(y=[smax, smin], x=[-h/2, h/2]) * 1e3 
             for h, smax, smin in zip(*tup)]
         
-        print(plotres)
         fig, axes = plt.subplots(nrows=2)
         plotres.plot(y=['smax', 'smin'], ax=axes[0])
         plt.grid(axis="y", color="darkgray", linestyle="--")    
@@ -90,6 +89,7 @@ elif multiple_model:
     for f in folders:
         print(f)
 
+    print()
     res = models_summary(dfs, folders, col=res_colnames[-1], col_function="max")
     
     for p, t in zip(params, types):
@@ -98,16 +98,50 @@ elif multiple_model:
         elif t == 'str':
             res[p] = str_extract(res, 'info', word_list=word_list)
 
-    cols = params + [res_colnames[-1]]
+    cols = params + ['x', 'y'] + [res_colnames[-1]]
     res = res[cols].sort_values(params, ascending=[True] * len(params))
     res[res_colnames[-1]] *= 1e3
-    
+    print(res)
+    """
     is_data_loaded(res)
 
     if plot:
+        print(res.head())
+        plotres = pd.DataFrame()
+        plotres['smax'] = res[res_colnames[-1]].loc[res[res_colnames[-1]].idxmax()]
+        plotres['smin'] = res[res_colnames[-1]].loc[res[res_colnames[-1]].idxmin()]
+        
+        plotres['h'] = abs(res['y'].loc[res[res_colnames[-1]].idxmax()] - res['y'].loc[res[res_colnames[-1]].idxmin()])
+
+        tup = (
+            plotres['h'].tolist(), 
+            plotres['smax'].tolist(), 
+            plotres['smin'].tolist()
+        )
+        plotres['axial_force'] = [
+            force_stress_integration(y=[smax, smin], x=[-h/2, h/2]) * 1e3 
+            for h, smax, smin in zip(*tup)]
+        plotres['bending'] = [
+            -moment_stress_integration(y=[smax, smin], x=[-h/2, h/2]) * 1e3 
+            for h, smax, smin in zip(*tup)]
+        
+        fig, axes = plt.subplots(nrows=2)
+        plotres.pivot(index="tw_h", columns="mpc").plot(ax=axes[0])
+        plotres.plot(y=['smax', 'smin'], ax=axes[0])
+        plt.grid(axis="y", color="darkgray", linestyle="--")    
+        axes[0].set_ylabel("Force [kN]")
+        
+        plotres.plot(y=['bending'], ax=axes[1])
+        plt.grid(axis="y", color="darkgray", linestyle="--")    
+        plt.xlabel("Loadcase")
+        axes[1].set_ylabel('Bending [kNm]')
+        plt.xticks(rotation=0)
+        plt.show()
+
         res.pivot(index="tw_h", columns="mpc", values=res_colnames[-1]).plot()
         plt.grid(axis="both", color="darkgray", linestyle="--")    
         plt.ylabel("Force [kN]")
         plt.xlabel("Modelled tower wall height [m]")
         plt.ylim(0, max(res[res_colnames[-1]])*1.1)
-        plt.show()
+        plt.show()"""
+        

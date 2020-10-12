@@ -14,17 +14,30 @@ y_slab_top = y_ped_bot
 y_slab_edge_top = y_slab_top - slab_h_slope
 y_slab_bot = y_slab_edge_top - slab_h_edge
 
+lap_ri = 2.2
+lap_ro = 2.4
+lap_h = 0.5
+y_lap_bot = y_slab_bot + 0.2
+y_lap_top = y_lap_bot + lap_h
+
 with pygmsh.geo.Geometry() as geom:   
     geom.characteristic_length_max = 0.1
 
-    points = [
+    section_points = [
         [0, 0, y_slab_bot],
         [slab_r, 0, y_slab_bot],
         [slab_r, 0, y_slab_edge_top],
         [ped_r, 0, y_slab_top],
         [0, 0, y_slab_top]
     ]
-    pol = geom.add_polygon(points, mesh_size=0.2)     
+    hole_points = [
+        [lap_ri, 0, y_lap_bot],
+        [lap_ro, 0, y_lap_bot],
+        [lap_ro, 0, y_lap_top],
+        [lap_ri, 0, y_lap_top],
+    ]
+    lap_hole = geom.add_polygon(hole_points, 1, make_surface=False)
+    pol = geom.add_polygon(section_points, mesh_size=0.2, holes=[lap_hole.curve_loop])     
     
     vol = geom.revolve(
         input_entity=pol, 
@@ -38,7 +51,6 @@ with pygmsh.geo.Geometry() as geom:
     # TODO symmetry
     # TODO fix the mesh at the center
     #geom.miror(vol, [1, 0, 0, 0])
-
     
     # Mesh
     geom.set_recombined_surfaces([pol.surface])

@@ -2,8 +2,8 @@ import os, re
 import pandas as pd
 
 
-#FOLDER_PATH = 'C:\\_CURRENT\\'
-FOLDER_PATH = 'C:\\_CURRENT\\loading MPC flexible - tw_h 100m'
+FOLDER_PATH = 'C:\\_CURRENT\\'
+#FOLDER_PATH = 'C:\\_CURRENT\\loading MPC flexible - tw_h 100m'
 #FOLDER_PATH = 'D:\\STUDIES\\202009 Tower Height-Foundation Stiffness\\rock adapter\\Mxy 157MNm\\loading MPC flexible - tw_h 1m'
 LOADSTEPS = 11
 
