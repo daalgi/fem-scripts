@@ -34,7 +34,7 @@ with pygmsh.geo.Geometry() as geom:
         geom.set_transfinite_curve(v, div, "Progression", 1)
 
     for s in surfaces[1:]:
-        geom.set_transfinite_surface(s, corner_tags=s.curve_loop.curves)
+        geom.set_transfinite_surface(s, s.curve_loop.curves, s.curve_loop.curves)
     
     #geom.set_recombined_surfaces(surfaces)
     
