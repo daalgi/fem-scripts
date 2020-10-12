@@ -21,8 +21,8 @@ lap_h = 0.5
 y_lap_bot = y_slab_bot + 0.2
 y_lap_top = y_lap_bot + lap_h
 
-with pygmsh.geo.Geometry() as geom:   
-    geom.characteristic_length_max = 0.1
+with pygmsh.occ.Geometry() as geom:   
+    geom.characteristic_length_max = 0.5
 
     section_points = [
         [center_r, 0, y_slab_bot],
@@ -38,39 +38,26 @@ with pygmsh.geo.Geometry() as geom:
         [lap_ri, 0, y_lap_top],
     ]
     lap_hole = geom.add_polygon(hole_points, 1, make_surface=False)
-    pol = geom.add_polygon(section_points, mesh_size=0.1, holes=[lap_hole.curve_loop])     
+    pol = geom.add_polygon(section_points, mesh_size=0.2, holes=[lap_hole.curve_loop])     
+    #gmsh.model.occ.revolve(pol.surface.dim_tags, 0, 0, 0, 0, 0, 1, angle=math.pi, recombine=True)
     
-    vol = geom.revolve(
-        input_entity=pol, 
-        rotation_axis=[0, 0, 1], 
-        point_on_axis=[0, 0, 0],
-        angle=math.pi/2,
-        num_layers=20,
-        recombine=True
-    )
-
     geom.revolve(
         input_entity=pol, 
         rotation_axis=[0, 0, 1], 
         point_on_axis=[0, 0, 0],
-        angle=-math.pi/2,
-        num_layers=20,
+        angle=math.pi,
+        num_layers=2,
         recombine=True
     )
-
-    # TODO symmetry
-    # TODO fix the mesh at the center
-    cp = geom.copy(pol)
-
     geom.revolve(
-        input_entity=cp, 
+        input_entity=pol, 
         rotation_axis=[0, 0, 1], 
         point_on_axis=[0, 0, 0],
-        angle=math.pi/2,
-        num_layers=20,
+        angle=-math.pi,
+        num_layers=2,
         recombine=True
     )
-    
+        
     # Mesh
     geom.set_recombined_surfaces([pol.surface])
     #geom.set_recombined_surfaces([cp])
