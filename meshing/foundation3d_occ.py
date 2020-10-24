@@ -46,17 +46,23 @@ with pygmsh.occ.Geometry() as geom:
         rotation_axis=[0, 0, 1], 
         point_on_axis=[0, 0, 0],
         angle=math.pi,
-        num_layers=2,
+        num_layers=64,
         recombine=True
     )
-    geom.revolve(
+    slab_vol = geom.revolve(
         input_entity=pol, 
         rotation_axis=[0, 0, 1], 
         point_on_axis=[0, 0, 0],
         angle=-math.pi,
-        num_layers=2,
+        num_layers=64,
         recombine=True
     )
+    """slab_center = geom.add_cylinder(
+        x0=[0, 0, y_slab_bot],
+        axis=[0, 0, y_slab_top-y_slab_bot],
+        radius=center_r
+    )
+    geom.boolean_union([slab_vol, slab_center])"""
         
     # Mesh
     geom.set_recombined_surfaces([pol.surface])
