@@ -63,7 +63,7 @@ class Nodes:
     def __iter__(self):
         return iter(self.array)
 
-    
+    #def by_location(self, )    
 
 
 def sort(nodes: Nodes, clockwise: bool = False):
@@ -80,9 +80,9 @@ def sort(nodes: Nodes, clockwise: bool = False):
 
     # Axis
     normal = np.cross(ref, nodes.get(1).coord())
-    normal = normal / math.hypot(*normal)
+    normal = normal / np.linalg.norm(normal)
     xaxis = np.subtract(ref, center.coord())
-    xaxis = xaxis / math.hypot(*xaxis)
+    xaxis = xaxis / np.linalg.norm(xaxis)
     yaxis = np.cross(xaxis, normal)
 
     # Angles of each point in the defined x and y axes
@@ -105,7 +105,11 @@ def by_location(
     x: float = None, xmin: float = None, xmax: float = None, 
     y: float = None, ymin: float = None, ymax: float = None, 
     z: float = None, zmin: float = None, zmax: float = None,
-    system: str = "cartesian", origin: tuple = (0, 0, 0), rotation: tuple = (0, 0, 0),
+    node_list: list = None,
+    origin: tuple = (0, 0, 0), 
+    rotation_axis: tuple = (0, 0, 0),
+    rotation_angle: float = 0,
+    system: str = "cartesian",
     seltol: float = 1e-7
 ):
     """
@@ -113,7 +117,7 @@ def by_location(
     given by the arguments system, origin and rotation.
 
     Keyword arguments:
-    filter locations: x, xmin, xmax, y, ymin, ymax, z, zmin, zmax
+    filter locations in the local system: x, xmin, xmax, y, ymin, ymax, z, zmin, zmax
     system -- string with the name of the coordinate system "cartesian" or "cylindrical"
     origin -- tuple with the global cartesian coordinates of the local system of reference's origin
     rotation -- tuple with the rotation angles in radians of the local system of reference
@@ -151,16 +155,21 @@ def by_location(
     if zmax is not None:
         conditions.append(lambda c: compare_coord_max(loc=zmax, coord=c[2], seltol=seltol))
 
-    return [
-        n for n in ops.getNodeTags() 
+    if node_list is None:
+        nodes_list = ops.getNodeTags()
+
+    return Nodes([
+        Node(*ops.nodeCoord(n), id=n) 
+        for n in nodes_list 
         if all(
             condition(
                 cartesian_to(
                     point=ops.nodeCoord(n), 
                     system=system, 
                     origin=origin,
-                    rotation=rotation
+                    rotation_axis=rotation_axis,
+                    rotation_angle=rotation_angle
                     )
                 ) for condition in conditions
             )
-        ]
+        ])
