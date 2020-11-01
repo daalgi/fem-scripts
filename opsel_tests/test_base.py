@@ -1,6 +1,6 @@
 import unittest, math
 
-from opsel.base import rotate
+from opsel.base import rotate, cartesian_to
 
 
 DECIMALS = 15
@@ -72,3 +72,31 @@ class TestRotate(unittest.TestCase):
         self.assertAlmostEqual(q[0], 0, places=DECIMALS)
         self.assertAlmostEqual(q[1], +1*math.sqrt(2)/2, places=DECIMALS)
         self.assertAlmostEqual(q[2], -1*math.sqrt(2)/2, places=DECIMALS)    
+
+
+class TestCartesianTo(unittest.TestCase):
+
+    def test_origin_displacement(self):
+        p = (8, 8, 8)
+        new_origin = (7, 7, 7)
+        q = cartesian_to(point=p, origin=new_origin)
+        self.assertEqual(q, (1, 1, 1))
+
+    def test_rotation(self):
+        p = (1, 0, 0)
+        axis = (0, 0, 1)
+        angle = math.pi / 2
+        q = cartesian_to(point=p, rotation_axis=axis, rotation_angle=angle)
+        self.assertAlmostEqual(q[0], 0, places=DECIMALS)
+        self.assertAlmostEqual(q[1], 1, places=DECIMALS)
+        self.assertAlmostEqual(q[2], 0, places=DECIMALS)
+
+    def test_rotation2(self):
+        p = (1, 1, 0)
+        axis = (0, 0, 1)
+        angle = math.pi / 2
+        q = cartesian_to(point=p, rotation_axis=axis, rotation_angle=angle)
+        #print(q)
+        self.assertAlmostEqual(q[0], -1, places=DECIMALS)
+        self.assertAlmostEqual(q[1], +1, places=DECIMALS)
+        self.assertAlmostEqual(q[2], 0, places=DECIMALS)

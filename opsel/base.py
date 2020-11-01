@@ -66,11 +66,16 @@ def cartesian_to(
         point = tuple([p - o for p, o in zip(point, origin)])
 
     # Rotate the coordinate system
+    # TODO not working as expected
+    # it only rotates a point, but it should rotate the axes
+    # so the coordinates of the point are expressed in the new axes
+    #print(point)
     point = rotate(point, rotation_axis, rotation_angle)
-    
+    #print(point)
+
     # Change to cylindrical coordinates (radius, angle, z)
     if system.lower() == "cylindrical":
         #TODO
         return point
     
-    return [*point]
+    return tuple([*point])

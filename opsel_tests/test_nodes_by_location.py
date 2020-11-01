@@ -52,6 +52,7 @@ class TestCartesianCoordSys(unittest.TestCase):
         axis = (0, 0, 1)
         angle = math.pi / 2
         s = nodes.by_location(x=-1, rotation_axis=axis, rotation_angle=angle)
+        
         self.assertEqual(len(s.ids()), 10)
         self.assertEqual(s.ids()[0], 1)
         self.assertEqual(s.x()[0], 1)
@@ -64,7 +65,7 @@ class TestCartesianCoordSys(unittest.TestCase):
         axis = (0, 0, 1)
         angle = math.pi / 2
         s = nodes.by_location(y=-1, rotation_axis=axis, rotation_angle=angle)
-        print(s)
+        #print(s)
         # TODO
         """self.assertEqual(len(s.ids()), 10)
         self.assertEqual(s.ids()[0], 1)

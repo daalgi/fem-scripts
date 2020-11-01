@@ -27,7 +27,7 @@ class Node:
 
 @dataclass
 class Nodes:
-    array: list
+    array: list = None
 
     def __post_init__(self):
         self.n = len(self.array)
@@ -44,6 +44,24 @@ class Nodes:
     def z(self):
         return [n.z for n in self.array]
 
+    def xmin(self):
+        return min(self.x()) if self.n > 0 else None
+
+    def xmax(self):
+        return max(self.x()) if self.n > 0 else None
+
+    def ymin(self):
+        return min(self.y()) if self.n > 0 else None
+
+    def ymax(self):
+        return max(self.y()) if self.n > 0 else None
+
+    def zmin(self):
+        return min(self.z()) if self.n > 0 else None
+
+    def zmax(self):
+        return max(self.z()) if self.n > 0 else None
+    
     def get(self, i):
         return self.array[i]
 

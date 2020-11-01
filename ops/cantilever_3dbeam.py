@@ -1,4 +1,5 @@
 import os, sys, math
+sys.path.append('.\\')
 
 import numpy as np
 
@@ -11,8 +12,9 @@ import pyvista as pv
 
 import matplotlib.pyplot as plt
 
-from select import nodesByLocation
-from utils import convert_eol_windows_to_unix
+#from select import nodesByLocation
+import opsel.nodes
+from opsel.nodes import Node, Nodes
 
 
 def init(output=False):
@@ -20,7 +22,6 @@ def init(output=False):
     ops.wipe()
     #ops.model('Basic', '-ndm', 2)
     ops.model('Basic', '-ndm', 3, '-ndf', 3)   # For shell elements in 3d
-    #ops.model('Basic', '-ndm', 2, '-ndf', 2)   # For plane stress in 2d
     coordTransf = "Linear"  # Linear, PDelta, Corotational
     #ops.geomTransf(coordTransf, 1)
     massType = "-lMass"  # -lMass, -cMass
@@ -28,10 +29,10 @@ def init(output=False):
     if output:
         if not os.path.exists(output):
             os.makedirs(output)
-        ops.recorder('PVD', output, 'disp')
+        ops.recorder('PVD', output, 'disp', 'pressure')
 
 
-def create_mesh(length, width, height, elem_max_size=0.5):
+def create_mesh(length, width, height, elem_max_size=0.2):
 
     num_nodes_horizontal = int(math.ceil(length // elem_max_size) + 1)
     num_nodes_vertical = int(math.ceil(height / elem_max_size) + 1)
@@ -99,7 +100,9 @@ def run():
     file_vtk = '.\\ops\\cantilever_3dbeam.vtk'
     #convert_eol_windows_to_unix(filename)
     height=1#2
-    m = create_mesh(length=3, width=0.5, height=height, elem_max_size=0.25)
+    width=0.2
+    length=10 
+    m = create_mesh(length=length, width=width, height=height, elem_max_size=0.25)
     m.write(file_vtk)
     grid = pv.read(file_vtk)
 
@@ -111,44 +114,44 @@ def run():
     for i, point in enumerate(m.points):
         ops.node(i+1, *point)
     
-    # Elements
+    # Material
     emod = 30e6
     nu = 0.2
     h = 0.3
     rho = 2.5
-    # Material
     matTag = 1
     ops.nDMaterial('ElasticIsotropic', matTag, emod, nu)
+    
+    # Elements
     quad = [c for c in m.cells if c.type == "hexahedron"][0].data
     for i, nodes in enumerate(quad):
         eleTag = i + 1
         eleNodes = [int(n) + 1 for n in nodes]
         ops.element('stdBrick', eleTag, *eleNodes, matTag)
-    
+            
     # Boundary conditions
-    bc_nodes = nodesByLocation(x=0)
-    for n in bc_nodes:
+    bc_nodes = opsel.nodes.by_location(x=0)
+    for n in bc_nodes.ids():
         ops.fix(n, 1, 1, 1, 1, 1, 1)
     
     # Loading
     pressure = 100
     ops.timeSeries('Linear', 1)
     ops.pattern('Plain', 1, 1)
-    load_nodes = nodesByLocation(z=height)
-    def is_in_surface(coord):
-        return coord[2] == height
 
-    
-
+    load_nodes = opsel.nodes.by_location(z=height)
     current_elem = max(ops.getEleTags()) + 1
     for e in ops.getEleTags():
-        nodes = ops.eleNodes(e)
-        surface_nodes = [n for n in nodes if is_in_surface(ops.nodeCoord(n))]
-        if surface_nodes:
+        ele_nodes = ops.eleNodes(e)
+        surface_nodes = Nodes([
+            Node(*ops.nodeCoord(n), id=n) 
+            for n in ele_nodes if ops.nodeCoord(n)[2] == height
+            ])
+        if surface_nodes.n > 0:
             # Nodes sorted counterclock-wise
-            #ccw = sorted(surface_nodes, key=lambda k: (k))
-            print(surface_nodes, current_elem)
-            ops.element('SurfaceLoad', current_elem, *surface_nodes, -pressure)
+            sorted_nodes = opsel.nodes.sort(surface_nodes)
+            #print(sorted_nodes)
+            ops.element('SurfaceLoad', current_elem, *sorted_nodes.ids(), +pressure)
             current_elem += 1
     
     # Solution
@@ -156,38 +159,33 @@ def run():
     opsplt.createODB(model_name, loadcase)
     solve()
 
-    # Post-processing    
-    res = ""
     
-    """
-    for e in ops.getEleTags():
-        ni = ops.eleNodes(e)[0]
-        res += f'\nNodes: {ops.eleNodes(e)}'
-        for index, force in enumerate(ops.eleForce(e)):
-            if index % 6 == 0:
-                res += f'\nForces Node{index // 6 + 1}: {force:>7.2f} kN'
-            elif index % 6 < 3:
-                res += f', {force:>7.2f} kN'
-            else:
-                res += f', {force:>7.2f} kNm'
+    ops.reactions()
+    for n in opsel.nodes.by_location(x=0):
+        print(ops.nodeReaction(n.id))
 
-    print(res)"""
-    #opsplt.plot_model("nodes", "elements", Model=model_name)
+    ops.printModel('-file', f'./ops/{model_name}.txt')
+    # Post-processing
+    res = ''
+    res += "\n\nReactions"
+    fz = sum([ops.nodeReaction(n.id)[2] for n in opsel.nodes.by_location(x=0)])
+    print(sum([ops.nodeReaction(n.id)[0] for n in opsel.nodes.by_location(x=0)]))
+    print(sum([ops.nodeReaction(n.id)[1] for n in opsel.nodes.by_location(x=0)]))
+    print(sum([ops.nodeReaction(n.id)[2] for n in opsel.nodes.by_location(x=0)]))
+    #res += f'{fz*1e3:>8.2f} kN'
+
+
+    res += "\n\nMaximum vertical displacement"
+
+    # Theoretical maximum vertical displacement
+    vmax = 1.5 * pressure * length ** 4 / emod / height ** 3
+    res += f'\nTheoretical: {vmax*1e3:>8.4f} mm'
+
+    # Simulation maximum vertical displacement
+    vmaxfem = max([abs(ops.nodeDisp(n)[2]) for n in ops.getNodeTags()])
+    res += f'\nSimulation:  {vmaxfem*1e3:>8.4f} mm'
     
-    # - plot model
-    #plt.figure()
-    #opsv.plot_model()
-    #plt.axis('equal')
-    
-    # - plot deformation
-    #plt.figure()
-    #opsv.plot_defo()
-    # opsv.plot_defo(sfac, unDefoFlag=1, fmt_undefo='g:')
-    #plt.axis('equal')
-    """
-    # get values at OpenSees nodes
-    sig_out = opsv.quad_sig_out_per_node()
-    print(f'sig_out:\n{sig_out}')"""
+    print(res)
 
 
 if __name__ == '__main__':    
