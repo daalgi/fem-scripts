@@ -7,6 +7,7 @@ from opsel.base import (
     compare_coord, compare_coord_max, compare_coord_min, cartesian_to
 )
 
+
 @dataclass
 class Node:
     x: float
@@ -71,11 +72,11 @@ class Nodes:
             y=sum(self.y())/self.n,
             z=sum(self.z())/self.n)
 
-    def __add__(self, node):
-        if isinstance(node, Node):
-            return Nodes(self.array + [node])
-        if isinstance(node, Nodes):
-            return Nodes(self.array + node.array)
+    def __add__(self, other):
+        if isinstance(other, Node):
+            return Nodes(self.array + [other])
+        elif isinstance(other, Nodes):
+            return Nodes(self.array + other.array)
         raise ValueError("Incorrect type")
 
     def __iter__(self):
@@ -140,6 +141,8 @@ def by_location(
     origin -- tuple with the global cartesian coordinates of the local system of reference's origin
     rotation -- tuple with the rotation angles in radians of the local system of reference
     seltol -- float with the selection tolerance
+    
+    returns -- an instance of Nodes, containing the filtered nodes.
 
     Examples:
     nodes.by_location(x=0)
@@ -148,6 +151,7 @@ def by_location(
     """
 
     conditions = []
+    # TODO cylindrical coordinate system
     if system == "cylindrical":
         #x, xmin, xmax, y, ymin, ymax, z, zmin, zmax = tuple([])
         pass

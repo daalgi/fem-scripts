@@ -8,6 +8,7 @@ import openseespy.postprocessing.ops_vis as opsv
 import pyvista as pv
 
 import opsel.nodes
+import opsel.elements
 from opsel.nodes import Node, Nodes
 from base import (
     init, solve, 
@@ -25,10 +26,10 @@ def create_mesh(beam, elem_max_size=0.2):
 
         points = [geom.add_point((0, 0, 0), mesh_size=1)]
         points += [geom.add_point((beam.length, 0, 0), mesh_size=1)]
-        #points += [geom.add_point((beam.length, beam.height, 0), mesh_size=1)]
-        points += [geom.add_point((beam.length, 0, beam.height), mesh_size=1)]
-        #points += [geom.add_point((0, beam.height, 0), mesh_size=1)]
-        points += [geom.add_point((0, 0, beam.height), mesh_size=1)]
+        points += [geom.add_point((beam.length, beam.height, 0), mesh_size=1)]
+        #points += [geom.add_point((beam.length, 0, beam.height), mesh_size=1)]
+        points += [geom.add_point((0, beam.height, 0), mesh_size=1)]
+        #points += [geom.add_point((0, 0, beam.height), mesh_size=1)]
         
         lines = [geom.add_line(points[i-1], points[i]) for i in [1, 2, 3, 0]]
 
@@ -60,12 +61,12 @@ def run():
     grid = pv.read(file_vtk)
 
     # Plot
-    grid.plot(show_axes=True, show_edges=True)
+    #grid.plot(show_axes=True, show_edges=True)
 
     # Convert to opensees mesh
     # Nodes
     for i, point in enumerate(m.points):
-        ops.node(i+1, *point)
+        ops.node(i+1, *point[:-1])
     
     # Material
     matTag = 1
@@ -85,22 +86,31 @@ def run():
         ops.fix(n, 1, 1, 1, 1, 1, 1)
     
     # Loading
-    load_nodes = opsel.nodes.by_location(z=beam.height)
+    load_nodes = opsel.nodes.by_location(y=beam.height)
     current_elem = max(ops.getEleTags()) + 1
     for n in load_nodes:
-        ops.load(n, 0, -beam.pressure)
-        
+        #ops.load(n, 0, -beam.pressure)
+        #print('\n', n, ops.nodeCoord(n))        
+        ops.load(n.id, 0, -beam.pressure * beam.width)# * 0.2)
+        #print(n)
+    
+    # TODO test opsel.elements
+    #elem = opsel.elements.composed_by(opsel.nodes.by_location(xmax=5).ids())
+    elem = opsel.elements.containing(load_nodes.ids())
+    print(elem)
+    
+    """    
     # Solution
     loadcase = "DistributedLoad"
     opsplt.createODB(model_name, loadcase)
     solve()
-
+    
     # Post-processing
-    #ops.printModel('-file', filename)
+    ops.printModel('-file', f'{filename}.txt')
     print(f'\n{filename}')
     print_vertical_displacements(beam, u_i=1)
     print_reactions(beam, reaction_i=1)
-    
+    """
 
 if __name__ == '__main__':    
     run()
