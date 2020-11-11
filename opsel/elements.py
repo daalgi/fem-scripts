@@ -73,6 +73,9 @@ class Elements:
         elif isinstance(other, Elements):
             return Elements([e for e in self.array if e.id not in other.ids()])
         raise ValueError("Incorrect type")
+
+    def __iter__(self):
+        return iter(self.array)
     
 
 def nodes_ids(nodes):

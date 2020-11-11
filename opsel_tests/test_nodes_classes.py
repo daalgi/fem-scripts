@@ -29,6 +29,27 @@ class TestNodesClass(unittest.TestCase):
         t = r + s
         self.assertEqual(t.n, 3)
 
+    def test_subtract_nodes(self):
+        nodes = Nodes([Node(0, 0, id=1), Node(1, 0, id=2)])
+        self.assertEqual(nodes.n, 2)
+        self.assertEqual(nodes.ids(), [1, 2])
+        
+        nodes2 = nodes - 1
+        self.assertEqual(nodes2.n, 1)
+        self.assertEqual(nodes2.ids(), [2])
+
+        nodes2 = nodes - [1]
+        self.assertEqual(nodes2.n, 1)
+        self.assertEqual(nodes2.ids(), [2])
+
+        nodes2 = nodes - Node(id=1)
+        self.assertEqual(nodes2.n, 1)
+        self.assertEqual(nodes2.ids(), [2])
+
+        nodes2 = nodes - Nodes([Node(id=1)])
+        self.assertEqual(nodes2.n, 1)
+        self.assertEqual(nodes2.ids(), [2])
+
     def test_center(self):
         nodes = Nodes([
             Node(+1, -1),

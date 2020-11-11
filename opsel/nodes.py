@@ -10,8 +10,8 @@ from opsel.base import (
 
 @dataclass
 class Node:
-    x: float
-    y: float
+    x: float = 0
+    y: float = 0
     z: float = 0
     id: int = 1
 
@@ -73,16 +73,53 @@ class Nodes:
             z=sum(self.z())/self.n)
 
     def __add__(self, other):
+        """
+        if isinstance(other, int):
+            return Nodes(self.array + [Node(other)])
+        elif isinstance(other, list):
+            if all(isinstance(o, int) for o in other):
+                return Nodes(self.array + [Node(n) for n in other])
+        """
         if isinstance(other, Node):
             return Nodes(self.array + [other])
         elif isinstance(other, Nodes):
             return Nodes(self.array + other.array)
         raise ValueError("Incorrect type")
 
+    def __sub__(self, other):
+        if isinstance(other, int):
+            return Nodes([n for n in self.array if n.id != other])
+        elif isinstance(other, list):
+            if all(isinstance(o, int) for o in other):
+                return Nodes([n for n in self.array if n.id not in other])
+        elif isinstance(other, Node):
+            return Nodes([n for n in self.array if n.id != other.id])
+        elif isinstance(other, Nodes):
+            return Nodes([n for n in self.array if n.id not in other.ids()])
+        raise ValueError("Incorrect type")
+
     def __iter__(self):
         return iter(self.array)
 
-    #def by_location(self, )    
+    def by_location(self, 
+        x: float = None, xmin: float = None, xmax: float = None, 
+        y: float = None, ymin: float = None, ymax: float = None, 
+        z: float = None, zmin: float = None, zmax: float = None,
+        origin: tuple = (0, 0, 0), 
+        rotation_axis: tuple = (0, 0, 0),
+        rotation_angle: float = 0,
+        system: str = "cartesian",
+        seltol: float = 1e-7
+    ):
+        return by_location(
+            x, xmin, xmax, y, ymin, ymax, z, zmin, zmax,
+            node_list=self.array,
+            origin=origin, 
+            rotation_axis=rotation_axis, 
+            rotation_angle=rotation_angle,
+            system=system,
+            seltol= seltol
+        )
 
 
 def sort(nodes: Nodes, clockwise: bool = False):
