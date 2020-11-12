@@ -2,7 +2,8 @@ import unittest, math
 
 import openseespy.opensees as ops
 
-import opsel.nodes as nodes
+from opsel.nodes import Nodes, Node
+import opsel.nodes
 
 
 class TestCartesianCoordSys(unittest.TestCase):
@@ -17,32 +18,42 @@ class TestCartesianCoordSys(unittest.TestCase):
                 counter += 1
 
     def test_by_location_constant(self):
-        s = nodes.by_location(x=1)
+        s = opsel.nodes.by_location(x=1)
         self.assertEqual(len(s.ids()), 10)
         for x in s.x():
             self.assertEqual(x, 1)
 
     def test_by_location_greater_than(self):
-        s = nodes.by_location(xmin=8)
+        s = opsel.nodes.by_location(xmin=8)
         self.assertEqual(len(s.ids()), 10*3)
         for x in s.x():
             self.assertGreaterEqual(x, 8)
 
     def test_by_location_less_than(self):
-        s = nodes.by_location(xmax=8)
+        s = opsel.nodes.by_location(xmax=8)
         self.assertEqual(len(s.ids()), 10*8)
         for x in s.x():
             self.assertLessEqual(x, 8)
 
     def test_by_location_combination(self):
-        s = nodes.by_location(xmax=8, ymin=9)
+        s = opsel.nodes.by_location(xmax=8, ymin=9)
         self.assertEqual(len(s.ids()), 8*2)
         for x, y in zip(s.x(), s.y()):
             self.assertLessEqual(x, 8)        
             self.assertGreaterEqual(y, 9)
 
     def test_by_location_origin_modified(self):
-        s = nodes.by_location(x=-1, y=-1, origin=(9, 9, 9))
+        s = opsel.nodes.by_location(x=-1, y=-1, origin=(9, 9, 9))
+        self.assertEqual(len(s.ids()), 1)
+        self.assertEqual(s.x()[0], 8)
+        self.assertEqual(s.y()[0], 8)
+
+    def test_nodes_class_filter_by_location_origin_modified(self):
+        nodes = Nodes()
+        for n in ops.getNodeTags():
+            nodes += Node(*ops.nodeCoord(n), id=n)
+            
+        s = nodes.filter_by_location(x=-1, y=-1, origin=(9, 9, 9))
         self.assertEqual(len(s.ids()), 1)
         self.assertEqual(s.x()[0], 8)
         self.assertEqual(s.y()[0], 8)
@@ -51,7 +62,7 @@ class TestCartesianCoordSys(unittest.TestCase):
         # TODO check, not working as expected
         axis = (0, 0, 1)
         angle = math.pi / 2
-        s = nodes.by_location(x=-1, rotation_axis=axis, rotation_angle=angle)
+        s = opsel.nodes.by_location(x=-1, rotation_axis=axis, rotation_angle=angle)
         
         self.assertEqual(len(s.ids()), 10)
         self.assertEqual(s.ids()[0], 1)
@@ -64,7 +75,7 @@ class TestCartesianCoordSys(unittest.TestCase):
         # TODO check, not working as expected
         axis = (0, 0, 1)
         angle = math.pi / 2
-        s = nodes.by_location(y=-1, rotation_axis=axis, rotation_angle=angle)
+        s = opsel.nodes.by_location(y=-1, rotation_axis=axis, rotation_angle=angle)
         #print(s)
         # TODO
         """self.assertEqual(len(s.ids()), 10)

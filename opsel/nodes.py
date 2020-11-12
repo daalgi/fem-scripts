@@ -31,7 +31,9 @@ class Nodes:
     array: list = None
 
     def __post_init__(self):
-        self.n = len(self.array)
+        self.n = len(self.array) if self.array is not None else 0
+        if self.n == 0:
+            self.array = []
 
     def ids(self):
         return [n.id for n in self.array]
@@ -72,6 +74,11 @@ class Nodes:
             y=sum(self.y())/self.n,
             z=sum(self.z())/self.n)
 
+    def append(self, node):
+        if isinstance(node, Node):
+            self.array.append(node)
+        raise ValueError("Incorrect type")
+
     def __add__(self, other):
         """
         if isinstance(other, int):
@@ -101,7 +108,7 @@ class Nodes:
     def __iter__(self):
         return iter(self.array)
 
-    def by_location(self, 
+    def filter_by_location(self, 
         x: float = None, xmin: float = None, xmax: float = None, 
         y: float = None, ymin: float = None, ymax: float = None, 
         z: float = None, zmin: float = None, zmax: float = None,
@@ -112,14 +119,26 @@ class Nodes:
         seltol: float = 1e-7
     ):
         return by_location(
-            x, xmin, xmax, y, ymin, ymax, z, zmin, zmax,
-            node_list=self.array,
+            x=x, xmin=xmin, xmax=xmax, 
+            y=y, ymin=ymin, ymax=ymax, 
+            z=z, zmin=zmin, zmax=zmax,
+            node_list=self,
             origin=origin, 
             rotation_axis=rotation_axis, 
             rotation_angle=rotation_angle,
             system=system,
             seltol= seltol
         )
+
+    def sort(self, 
+        counterclockwise: bool = True, 
+        clockwise: bool = False,
+        x: bool = False,
+        y: bool = False,
+        z: bool = False
+    ):
+        # TODO develop and test
+        pass
 
 
 def sort(nodes: Nodes, clockwise: bool = False):
@@ -214,12 +233,35 @@ def by_location(
     if zmax is not None:
         conditions.append(lambda c: compare_coord_max(loc=zmax, coord=c[2], seltol=seltol))
 
-    if node_list is None:
-        nodes_list = ops.getNodeTags()
+    
+    if isinstance(node_list, Nodes):
+        # If the node_list is an instance of Nodes
+        # it's assumed that the coordinates are stored,
+        # so no need to retrieve them from ops.nodeCoord
+        # TODO test speed of both approaches
+        # Return an instance of Nodes with the filtered nodes
+        return Nodes([n for n in node_list
+            if all(
+                condition(
+                    cartesian_to(
+                        point=n.coord(), 
+                        system=system, 
+                        origin=origin,
+                        rotation_axis=rotation_axis,
+                        rotation_angle=rotation_angle
+                        )
+                    ) for condition in conditions
+                )
+            ])    
 
+    # If node_list is None, get the node tags from the model
+    if node_list is None:
+        node_list = ops.getNodeTags()
+
+    # Return an instance of Nodes with the filtered nodes
     return Nodes([
         Node(*ops.nodeCoord(n), id=n) 
-        for n in nodes_list 
+        for n in node_list
         if all(
             condition(
                 cartesian_to(
