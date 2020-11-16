@@ -1,6 +1,8 @@
 import unittest, math
 
-from opsel.base import rotate, cartesian_to
+import numpy as np
+
+from opsel.base import rotate, cartesian_to, tetrahedron_volume
 
 
 DECIMALS = 15
@@ -100,3 +102,14 @@ class TestCartesianTo(unittest.TestCase):
         self.assertAlmostEqual(q[0], -1, places=DECIMALS)
         self.assertAlmostEqual(q[1], +1, places=DECIMALS)
         self.assertAlmostEqual(q[2], 0, places=DECIMALS)
+
+
+class TestTetrahedralVolume(unittest.TestCase):
+
+    def test_(self):
+        a = np.array([0, 0, 0])
+        b = np.array([0, 1.5, 0])
+        c = np.array([2.5, 0, 0])
+        d = np.array([0, 0, 8.8])
+        vol = 1/3 * (1/2 * 1.5 * 2.5) * 8.8
+        self.assertAlmostEqual(tetrahedron_volume(a, b, c, d), vol, places=DECIMALS-1)

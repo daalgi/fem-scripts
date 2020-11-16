@@ -44,7 +44,7 @@ def init(output=False, ndm=3, ndf=3):
     if output:
         if not os.path.exists(output):
             os.makedirs(output)
-        ops.recorder('PVD', output, 'disp', 'pressure')
+        ops.recorder('PVD', output, 'disp')
 
 
 def solve():

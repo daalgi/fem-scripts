@@ -79,3 +79,7 @@ def cartesian_to(
         return point
     
     return tuple([*point])
+
+
+def tetrahedron_volume(a: np.array, b: np.array, c: np.array, d: np.array):
+    return abs(np.linalg.det([a-b, b-c, c-d]) / 6.)

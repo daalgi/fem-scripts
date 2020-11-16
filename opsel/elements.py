@@ -1,12 +1,26 @@
 from dataclasses import dataclass
+from enum import Enum
 
+import numpy as np
 import openseespy.opensees as ops
-from opsel.nodes import Nodes, Node
 
+from opsel.nodes import Nodes, Node
+from opsel.base import tetrahedron_volume
+
+
+class ElementType(Enum):
+    point: 1
+    line: 2
+    triangular: 3
+    quadrilateral: 4
+    tetrahedron: 5
+    hexahedron: 6
+    
 
 @dataclass
 class Element:
     id: int = 1
+    shape: ElementType = None
 
     def __post_init__(self):
         self.nodes = Nodes([Node(*ops.nodeCoord(n), id=n) for n in ops.eleNodes(self.id)])
@@ -23,6 +37,27 @@ class Element:
     def any_node_in_list(self, nodes):#: Nodes):
         nodes = nodes_ids(nodes)
         return any(n in nodes for n in self.nodes.ids())
+
+    def volume(self):
+        if self.shape is ElementType.tetrahedron:
+            # Only valid for elements with nodes at the vertices
+            # TODO implement for elements with midside nodes
+            if self.nodes.n == 4:
+                #https://stackoverflow.com/questions/9866452/calculate-volume-of-any-tetrahedron-given-4-points
+                return tetrahedron_volume(*self.nodes.coords(numpyArray=True))
+
+        elif self.shape is ElementType.hexahedron:
+            # TODO
+            pass
+        
+        # Not a volumetric element, so zero volume
+        return 0
+
+    def centroid(self):
+        # Only valid for elements with nodes at the vertices
+        # TODO implement for elements with midside nodes
+        # TODO test
+        return self.nodes.center()
 
 
 @dataclass
@@ -49,6 +84,10 @@ class Elements:
 
     def get(self, i):
         return self.array[i]
+
+    def volume(self):
+        # TODO test
+        return sum(e.volume() for e in self.array)
 
     def __add__(self, other):
         if isinstance(other, int):

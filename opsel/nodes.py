@@ -15,7 +15,9 @@ class Node:
     z: float = 0
     id: int = 1
 
-    def coord(self):
+    def coord(self, numpyArray=False):
+        if numpyArray:
+            return np.array([self.x, self.y, self.z])
         return [self.x, self.y, self.z]
 
     def vector_to(self, point):
@@ -37,6 +39,9 @@ class Nodes:
 
     def ids(self):
         return [n.id for n in self.array]
+
+    def coords(self, numpyArray=False):
+        return [n.coords(numpyArray) for n in self.array]
 
     def x(self):
         return [n.x for n in self.array]
@@ -239,6 +244,7 @@ def by_location(
         # it's assumed that the coordinates are stored,
         # so no need to retrieve them from ops.nodeCoord
         # TODO test speed of both approaches
+
         # Return an instance of Nodes with the filtered nodes
         return Nodes([n for n in node_list
             if all(
