@@ -117,6 +117,4 @@ def run():
     
 
 if __name__ == '__main__':    
-    #run()
-    beam = CantileverBeam()
-    m = create_mesh(beam=beam)
+    run()
