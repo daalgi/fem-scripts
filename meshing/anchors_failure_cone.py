@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # Example
     ref_in = Cone(xtop=3.5)
     ref_out = Cone(xtop=5.1)
-    num = 30
+    num = 10
     circle_of_cones = [
         #CircleOfCones(ref=ref_in, num=num),
         CircleOfCones(ref=ref_out, num=num)

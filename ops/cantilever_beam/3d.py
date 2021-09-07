@@ -109,6 +109,17 @@ def run():
     opsplt.createODB(model_name, loadcase)
     solve()
 
+    # List element stresses
+    for e in ops.getEleTags()[:2]:
+        # List of stresses 
+        #   len(stress) = n * 6 = 8 * 6 = 48
+        #       n = number of nodes in each element
+        #       6 = stress components
+        stress = ops.eleResponse(e, 'stresses')
+        nodes = ops.eleNodes(e)
+        print(f'-----------------Stress array: {len(stress)}')
+        for s, n in zip(stress, nodes):
+            print(s)
     # Post-processing
     #ops.printModel('-file', filename)
     print(f'\n{filename}')
