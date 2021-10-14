@@ -45,6 +45,7 @@ def init(output=False, ndm=3, ndf=3):
         if not os.path.exists(output):
             os.makedirs(output)
         ops.recorder('PVD', output, 'disp')
+        #ops.recorder('Element','-file',f'{output}_stress.txt','-element',1,2,3,4,5,'stresses')
 
 
 def solve():
