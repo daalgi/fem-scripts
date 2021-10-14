@@ -12,34 +12,19 @@ First, start MAPDL as a service and disable all but error messages.
 """
 # sphinx_gallery_thumbnail_number = 3
 
-import os
+import os, sys
+sys.path.append('.\\')
+
 import numpy as np
 import pyvista as pv
 import matplotlib.pyplot as plt
 
 import pyansys
+from ansys.base import init
+
 
 #os.environ['I_MPI_SHM_LMT'] = 'shm'  # necessary on Ubuntu
 #mapdl = pyansys.launch_mapdl(loglevel='ERROR')
-
-def init(ansys_path=None, working_directory=None):
-    if not ansys_path:
-        ansys_path = 'C:\\Program Files\\ANSYS Inc\\ANSYS 2020R1\\v201\\ansys\\bin\\winx64\\MAPDL.exe'
-    
-    pyansys.change_default_ansys_path(ansys_path)
-
-    if not working_directory:
-        working_directory = os.getcwd()
-
-    mapdl = pyansys.launch_mapdl(
-            run_location=working_directory, 
-            override=True,
-            loglevel='ERROR'
-            )
-    mapdl.finish()
-    mapdl.clear()
-    return mapdl
-
 
 mapdl = init()
 ###############################################################################

@@ -1,23 +1,8 @@
+import os, sys
+sys.path.append('.\\')
+
 import pyansys
-import os
-
-ANSYS_PATH = 'C:\\Program Files\\ANSYS Inc\\ANSYS 2020R1\\v201\\ansys\\bin\\winx64\\MAPDL.exe'
-
-def init(ansys_path: str = None, working_directory: str = None, jobname: str = ""):
-    if not ansys_path:
-        ansys_path = ANSYS_PATH
-    pyansys.change_default_ansys_path(ansys_path)
-
-    if not working_directory:
-        working_directory = os.getcwd()
-    mapdl = pyansys.launch_mapdl(
-        run_location=working_directory, 
-        override=True,
-        jobname=jobname
-    )
-    mapdl.finish()
-    mapdl.clear()
-    return mapdl
+from ansys.base import init
 
 
 wd = 'C:\\z10'
