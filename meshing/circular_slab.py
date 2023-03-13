@@ -36,7 +36,8 @@ with pygmsh.geo.Geometry() as geom:
     #geom.in_surface()
     #geom.boolean_union([c, re])
     """
-    mesh = geom.generate_mesh(remove_lower_dim_cells=True)
+    # mesh = geom.generate_mesh(remove_lower_dim_cells=True)
+    mesh = geom.generate_mesh()
     
     file_vtk = './meshing/circular_slab.vtk'
     mesh.write(file_vtk)

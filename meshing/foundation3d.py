@@ -38,16 +38,19 @@ with pygmsh.geo.Geometry() as geom:
         [lap_ri, 0, y_lap_top],
     ]
     lap_hole = geom.add_polygon(hole_points, 1, make_surface=False)
-    pol = geom.add_polygon(section_points, mesh_size=0.1, holes=[lap_hole.curve_loop])     
+    pol = geom.add_polygon(
+        section_points, 
+        mesh_size=0.1, 
+        holes=[lap_hole.curve_loop])     
     
-    vol = geom.revolve(
-        input_entity=pol, 
-        rotation_axis=[0, 0, 1], 
-        point_on_axis=[0, 0, 0],
-        angle=math.pi/2,
-        num_layers=20,
-        recombine=True
-    )
+    # vol = geom.revolve(
+    #     input_entity=pol, 
+    #     rotation_axis=[0, 0, 1], 
+    #     point_on_axis=[0, 0, 0],
+    #     angle=math.pi/2,
+    #     num_layers=20,
+    #     recombine=True
+    # )
 
     geom.revolve(
         input_entity=pol, 
@@ -79,7 +82,9 @@ with pygmsh.geo.Geometry() as geom:
     # Save mesh in a vtk file
     file_vtk = './meshing/foundation3d.vtk'
     mesh.write(file_vtk)
-    grid = pv.read(file_vtk)
+    file_med = './salome/foundation3d.med'
+    mesh.write(file_med)
 
     # Plot
+    grid = pv.read(file_vtk)
     grid.plot(show_axes=True, show_edges=True)

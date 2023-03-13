@@ -10,11 +10,11 @@ ped_r = 3
 slab_r = 10
 radius = [in_r, out_r, ped_r, slab_r]
 
-div_in = 5
+div_in = 6
 div_load = 3
 div_out = 4
-div_slab = 10
-div_circ = 12
+div_slab = 15
+div_circ = 36
 divs = [div_in, div_load, div_out, div_slab]
 
 with pygmsh.geo.Geometry() as geom:   
@@ -109,7 +109,9 @@ with pygmsh.geo.Geometry() as geom:
     # Save mesh in a vtk file
     file_vtk = './meshing/foundation2d.vtk'
     mesh.write(file_vtk)
-    grid = pv.read(file_vtk)
+    file_med = './salome/foundation2d.med'
+    mesh.write(file_med)
 
     # Plot
+    grid = pv.read(file_vtk)
     grid.plot(show_axes=True, show_edges=True)
